@@ -1,0 +1,14 @@
+{
+  "name": "michigan-bike-maps-api",
+  "version": "1.0.0",
+  "description": "this is a static node exress server with apollo graphql api layering. the server features an R runtime for handling geospacial data held in a postgis enabled postgresql database.",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Brahm Van Houzen, Myles Walimaa",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
