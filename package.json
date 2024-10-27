@@ -9,6 +9,25 @@
   "author": "Brahm Van Houzen, Myles Walimaa",
   "license": "MIT",
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.3",
+    "@graphql-codegen/introspection": "^4.0.3",
+    "@graphql-codegen/typescript": "^4.1.0",
+    "@graphql-codegen/typescript-resolvers": "^4.3.0",
+    "@types/cors": "^2.8.17",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.8.1",
+    "@types/pg": "^8.11.10",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "graphql-constraint-directive": "^5.4.3",
+    "graphql-rate-limit-directive": "^2.0.5",
+    "pg": "^8.13.1"
   }
 }
