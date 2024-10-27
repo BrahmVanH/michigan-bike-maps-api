@@ -1,17 +1,27 @@
 import dotenv from 'dotenv';
-import { typeDefs, resolvers } from './lib/graphql';
-import { ApolloServer } from '@apollo/server';
+import { readFileSync } from 'fs';
+
+import { Resolvers, Track } from 'generated/graphql';
+
+import { TrackResolver } from './lib/graphql/resolvers';
+import { ApolloServer, BaseContext } from '@apollo/server';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { expressMiddleware } from '@apollo/server/express4';
 import express, { Request } from 'express';
 import cors from 'cors';
 import http from 'http';
 import { makeExecutableSchema } from '@graphql-tools/schema';
+import { addMocksToSchema } from '@graphql-tools/mock';
+
+import AppDataSource from './database/dataSource';
+
+import TrackORM from './models/track';
+
+import { GraphQLSchema } from 'graphql';
 import { constraintDirective, constraintDirectiveTypeDefs } from 'graphql-constraint-directive';
 import { rateLimitDirective } from 'graphql-rate-limit-directive';
-import { CustomContext } from '../types/types';
-import client from './lib/apolloClient';
-import scrape from './lib/thumbtack_review_scraper';
+import { buildSchema } from 'type-graphql';
+import { CustomContext } from 'types/types';
 
 // Configre environment variables
 
@@ -34,24 +44,42 @@ const port = process.env.PORT ?? 4000;
 
 const { rateLimitDirectiveTypeDefs, rateLimitDirectiveTransformer } = rateLimitDirective();
 
-let schema = makeExecutableSchema({
-	typeDefs: [constraintDirectiveTypeDefs, rateLimitDirectiveTypeDefs, typeDefs],
-	resolvers,
-});
+// let schema = makeExecutableSchema({
+// 	typeDefs: [constraintDirectiveTypeDefs, rateLimitDirectiveTypeDefs, typeDefs],
+// 	resolvers,
+// });
+
+// const typeDefs = readFileSync('../schema.graphql', 'utf-8');
+
+const createSchema = async () => {
+	try {
+		let schema = await buildSchema({
+			resolvers: [TrackResolver],
+			validate: false,
+		});
+
+		schema = constraintDirective()(schema);
+		schema = rateLimitDirectiveTransformer(schema);
+
+		return schema;
+	} catch (err) {
+		console.error('Error creating schema', err);
+	}
+};
 
 // Apply constraint and rate limit directives to schema
 
-schema = constraintDirective()(schema);
-schema = rateLimitDirectiveTransformer(schema);
-
 // Create Apollo Server instance
 
-// To Do: Disable introspection in production after live testing
-const server = new ApolloServer<CustomContext>({
-	schema,
-	introspection: true,
-	plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-});
+const createServer = (schema: GraphQLSchema) => {
+	const server = new ApolloServer<CustomContext>({
+		schema,
+		introspection: true,
+		plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+	});
+
+	return server;
+};
 
 // Allow only specified origins to access the server
 
@@ -63,6 +91,17 @@ const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || [];
 
 const startApolloServer = async () => {
 	try {
+		const schema = await createSchema();
+		if (!schema) {
+			throw new Error('Schema not created');
+		}
+
+		const server = createServer(schema);
+
+		if (!server) {
+			throw new Error('Server not created');
+		}
+
 		await server.start();
 
 		app.use(
@@ -70,19 +109,7 @@ const startApolloServer = async () => {
 			cors({ origin: allowedOrigins, credentials: true }),
 			express.json(),
 			expressMiddleware(server, {
-				// context: async ({ req }: { req: Request }) => {
-				// 	// const provided_api_key = req.headers.authorization ?? '';
-				// 	// console.log('API Key:', provided_api_key);
-				// 	// // Compare api key provided by client to env
-				// 	// if (provided_api_key !== process.env.API_KEY) {
-				// 	// 	console.log('Invalid API Key');
-				// 	// 	throw new Error('Invalid API Key');
-				// 	// }
-				// 	return {
-				// 		client,
-				// 		scrape,
-				// 	};
-				// },
+				context: async () => ({ dataSource: AppDataSource }),
 			})
 		);
 	} catch (err: any) {

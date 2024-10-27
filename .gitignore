@@ -26,3 +26,6 @@ yarn-error.log*
 
 # mist
 notes.md
+
+src/database/environment
+dist/database/environment

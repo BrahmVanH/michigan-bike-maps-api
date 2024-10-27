@@ -1,0 +1,35 @@
+
+
+
+scalar Date
+
+type GeoJSONLineStringType {
+	type: String,
+	coordinates: [[Int]]
+}
+
+type GeoJSONPointType  {
+  type: String,
+  coordinates: [Int]
+}
+
+type TrackPropertiesType {
+  elevations: [Int]!,
+  timestamps: [String]!,
+  distance: Int!,
+  duration: Int!,
+  avgSpeed: Int,
+
+}
+
+type Track {
+  id: ID!,
+  name: String!,
+  recordedAt: Date!,
+  route: GeoJSONLineStringType!,
+  properties: TrackPropertiesType!,
+  startPoint: GeoJSONPointType!,
+  endPoint: GeoJSONPointType!,
+  description: String,
+  tags: [String],
+}

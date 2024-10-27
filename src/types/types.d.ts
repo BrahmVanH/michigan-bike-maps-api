@@ -1,10 +1,9 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { BaseContext } from '@apollo/server';
+import AppDataSource from 'database/dataSource.mts';
 
-
-
-interface CustomContext extends BaseContext {
-	client: ApolloClient<NormalizedCacheObject>;
+export interface CustomContext extends BaseContext {
+	dataSource: typeof AppDataSource;
 }
 
 export type S3Object = {
