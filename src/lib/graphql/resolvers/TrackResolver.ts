@@ -1,5 +1,5 @@
 import { Resolver, Query } from 'type-graphql';
-import TrackORM from '@models/Track';
+import TrackORM from '@/entities/Track';
 
 @Resolver(() => TrackORM)
 export class TrackResolver {

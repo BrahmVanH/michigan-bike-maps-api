@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import dotenv from 'dotenv';
 
-import TrackORM from '@models/Track';
+import TrackORM from '@/entities/Track';
 
 dotenv.config();
 

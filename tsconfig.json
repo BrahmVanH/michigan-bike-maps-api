@@ -12,7 +12,7 @@
 		"baseUrl": "./src",
 		"paths": {
 			"@/*": ["./*"],
-			"@models/*": ["models/*"],
+			"@entities/*": ["entities/*"],
 			"@resolvers/*": ["lib/graphql/resolvers/*"],
 			"@lib/*": ["lib/*"],
 			"@types/*": ["types/*"]
