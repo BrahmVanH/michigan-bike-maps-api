@@ -128,6 +128,7 @@ const startServer = async () => {
 		await setupMiddleware(server);
 
 		await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
+		console.log(`Server ready at http://localhost:${port}/graphql`);
 	} catch (err: any) {
 		console.error('Error starting server', err);
 	}

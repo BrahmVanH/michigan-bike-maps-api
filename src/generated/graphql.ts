@@ -13,41 +13,47 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  Date: { input: any; output: any; }
+  DateTimeISO: { input: any; output: any; }
 };
 
-export type GeoJsonLineStringType = {
-  __typename?: 'GeoJSONLineStringType';
-  coordinates?: Maybe<Array<Maybe<Array<Maybe<Scalars['Int']['output']>>>>>;
-  type?: Maybe<Scalars['String']['output']>;
+export type GeoJsonLineString = {
+  __typename?: 'GeoJSONLineString';
+  coordinates: Array<Array<Scalars['Float']['output']>>;
+  type: Scalars['String']['output'];
 };
 
-export type GeoJsonPointType = {
-  __typename?: 'GeoJSONPointType';
-  coordinates?: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
-  type?: Maybe<Scalars['String']['output']>;
+export type GeoJsonPoint = {
+  __typename?: 'GeoJSONPoint';
+  coordinates: Array<Scalars['Float']['output']>;
+  type: Scalars['String']['output'];
 };
 
-export type Track = {
-  __typename?: 'Track';
+export type Query = {
+  __typename?: 'Query';
+  track?: Maybe<TrackOrm>;
+  tracks: Array<TrackOrm>;
+};
+
+export type TrackOrm = {
+  __typename?: 'TrackORM';
   description?: Maybe<Scalars['String']['output']>;
-  endPoint: GeoJsonPointType;
+  endPoint: GeoJsonPoint;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  properties: TrackPropertiesType;
-  recordedAt: Scalars['Date']['output'];
-  route: GeoJsonLineStringType;
-  startPoint: GeoJsonPointType;
-  tags?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  properties?: Maybe<TrackProperties>;
+  recordedAt: Scalars['DateTimeISO']['output'];
+  route: GeoJsonLineString;
+  startPoint: GeoJsonPoint;
+  tags: Array<Scalars['String']['output']>;
 };
 
-export type TrackPropertiesType = {
-  __typename?: 'TrackPropertiesType';
-  avgSpeed?: Maybe<Scalars['Int']['output']>;
-  distance: Scalars['Int']['output'];
-  duration: Scalars['Int']['output'];
-  elevations: Array<Maybe<Scalars['Int']['output']>>;
-  timestamps: Array<Maybe<Scalars['String']['output']>>;
+export type TrackProperties = {
+  __typename?: 'TrackProperties';
+  avgSpeed?: Maybe<Scalars['Float']['output']>;
+  distance: Scalars['Float']['output'];
+  duration: Scalars['Float']['output'];
+  elevations: Array<Scalars['Float']['output']>;
+  timestamps: Array<Scalars['String']['output']>;
 };
 
 
@@ -122,72 +128,80 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
-  Date: ResolverTypeWrapper<Scalars['Date']['output']>;
-  GeoJSONLineStringType: ResolverTypeWrapper<GeoJsonLineStringType>;
-  GeoJSONPointType: ResolverTypeWrapper<GeoJsonPointType>;
+  DateTimeISO: ResolverTypeWrapper<Scalars['DateTimeISO']['output']>;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
+  GeoJSONLineString: ResolverTypeWrapper<GeoJsonLineString>;
+  GeoJSONPoint: ResolverTypeWrapper<GeoJsonPoint>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
-  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
-  Track: ResolverTypeWrapper<Track>;
-  TrackPropertiesType: ResolverTypeWrapper<TrackPropertiesType>;
+  TrackORM: ResolverTypeWrapper<TrackOrm>;
+  TrackProperties: ResolverTypeWrapper<TrackProperties>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
-  Date: Scalars['Date']['output'];
-  GeoJSONLineStringType: GeoJsonLineStringType;
-  GeoJSONPointType: GeoJsonPointType;
+  DateTimeISO: Scalars['DateTimeISO']['output'];
+  Float: Scalars['Float']['output'];
+  GeoJSONLineString: GeoJsonLineString;
+  GeoJSONPoint: GeoJsonPoint;
   ID: Scalars['ID']['output'];
-  Int: Scalars['Int']['output'];
+  Query: {};
   String: Scalars['String']['output'];
-  Track: Track;
-  TrackPropertiesType: TrackPropertiesType;
+  TrackORM: TrackOrm;
+  TrackProperties: TrackProperties;
 };
 
-export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
-  name: 'Date';
+export interface DateTimeIsoScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateTimeISO'], any> {
+  name: 'DateTimeISO';
 }
 
-export type GeoJsonLineStringTypeResolvers<ContextType = any, ParentType extends ResolversParentTypes['GeoJSONLineStringType'] = ResolversParentTypes['GeoJSONLineStringType']> = {
-  coordinates?: Resolver<Maybe<Array<Maybe<Array<Maybe<ResolversTypes['Int']>>>>>, ParentType, ContextType>;
-  type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+export type GeoJsonLineStringResolvers<ContextType = any, ParentType extends ResolversParentTypes['GeoJSONLineString'] = ResolversParentTypes['GeoJSONLineString']> = {
+  coordinates?: Resolver<Array<Array<ResolversTypes['Float']>>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type GeoJsonPointTypeResolvers<ContextType = any, ParentType extends ResolversParentTypes['GeoJSONPointType'] = ResolversParentTypes['GeoJSONPointType']> = {
-  coordinates?: Resolver<Maybe<Array<Maybe<ResolversTypes['Int']>>>, ParentType, ContextType>;
-  type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+export type GeoJsonPointResolvers<ContextType = any, ParentType extends ResolversParentTypes['GeoJSONPoint'] = ResolversParentTypes['GeoJSONPoint']> = {
+  coordinates?: Resolver<Array<ResolversTypes['Float']>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type TrackResolvers<ContextType = any, ParentType extends ResolversParentTypes['Track'] = ResolversParentTypes['Track']> = {
+export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  track?: Resolver<Maybe<ResolversTypes['TrackORM']>, ParentType, ContextType>;
+  tracks?: Resolver<Array<ResolversTypes['TrackORM']>, ParentType, ContextType>;
+};
+
+export type TrackOrmResolvers<ContextType = any, ParentType extends ResolversParentTypes['TrackORM'] = ResolversParentTypes['TrackORM']> = {
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  endPoint?: Resolver<ResolversTypes['GeoJSONPointType'], ParentType, ContextType>;
+  endPoint?: Resolver<ResolversTypes['GeoJSONPoint'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  properties?: Resolver<ResolversTypes['TrackPropertiesType'], ParentType, ContextType>;
-  recordedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  route?: Resolver<ResolversTypes['GeoJSONLineStringType'], ParentType, ContextType>;
-  startPoint?: Resolver<ResolversTypes['GeoJSONPointType'], ParentType, ContextType>;
-  tags?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  properties?: Resolver<Maybe<ResolversTypes['TrackProperties']>, ParentType, ContextType>;
+  recordedAt?: Resolver<ResolversTypes['DateTimeISO'], ParentType, ContextType>;
+  route?: Resolver<ResolversTypes['GeoJSONLineString'], ParentType, ContextType>;
+  startPoint?: Resolver<ResolversTypes['GeoJSONPoint'], ParentType, ContextType>;
+  tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type TrackPropertiesTypeResolvers<ContextType = any, ParentType extends ResolversParentTypes['TrackPropertiesType'] = ResolversParentTypes['TrackPropertiesType']> = {
-  avgSpeed?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  distance?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  duration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  elevations?: Resolver<Array<Maybe<ResolversTypes['Int']>>, ParentType, ContextType>;
-  timestamps?: Resolver<Array<Maybe<ResolversTypes['String']>>, ParentType, ContextType>;
+export type TrackPropertiesResolvers<ContextType = any, ParentType extends ResolversParentTypes['TrackProperties'] = ResolversParentTypes['TrackProperties']> = {
+  avgSpeed?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  distance?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  duration?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  elevations?: Resolver<Array<ResolversTypes['Float']>, ParentType, ContextType>;
+  timestamps?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = any> = {
-  Date?: GraphQLScalarType;
-  GeoJSONLineStringType?: GeoJsonLineStringTypeResolvers<ContextType>;
-  GeoJSONPointType?: GeoJsonPointTypeResolvers<ContextType>;
-  Track?: TrackResolvers<ContextType>;
-  TrackPropertiesType?: TrackPropertiesTypeResolvers<ContextType>;
+  DateTimeISO?: GraphQLScalarType;
+  GeoJSONLineString?: GeoJsonLineStringResolvers<ContextType>;
+  GeoJSONPoint?: GeoJsonPointResolvers<ContextType>;
+  Query?: QueryResolvers<ContextType>;
+  TrackORM?: TrackOrmResolvers<ContextType>;
+  TrackProperties?: TrackPropertiesResolvers<ContextType>;
 };
 

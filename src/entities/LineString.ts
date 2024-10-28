@@ -7,4 +7,6 @@ export default class GeoJSONLineStringType {
 
 	@Field(() => [[Number]])
 	coordinates: number[][];
+
+ 
 }
