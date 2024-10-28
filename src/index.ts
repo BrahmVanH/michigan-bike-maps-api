@@ -1,27 +1,18 @@
 import dotenv from 'dotenv';
-import { readFileSync } from 'fs';
-
-import { Resolvers, Track } from 'generated/graphql';
-
-import { TrackResolver } from './lib/graphql/resolvers';
-import { ApolloServer, BaseContext } from '@apollo/server';
+import { ApolloServer } from '@apollo/server';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { expressMiddleware } from '@apollo/server/express4';
-import express, { Request } from 'express';
+import express from 'express';
 import cors from 'cors';
 import http from 'http';
-import { makeExecutableSchema } from '@graphql-tools/schema';
-import { addMocksToSchema } from '@graphql-tools/mock';
-
-import AppDataSource from './database/dataSource';
-
-import TrackORM from './models/track';
-
-import { GraphQLSchema } from 'graphql';
+import { buildSchema } from 'type-graphql';
 import { constraintDirective, constraintDirectiveTypeDefs } from 'graphql-constraint-directive';
 import { rateLimitDirective } from 'graphql-rate-limit-directive';
-import { buildSchema } from 'type-graphql';
+import { TrackResolver } from './lib/graphql/resolvers';
+import AppDataSource from './database/dataSource';
 import { CustomContext } from 'types/types';
+
+import { GraphQLSchema } from 'graphql';
 
 // Configre environment variables
 
@@ -42,8 +33,6 @@ const port = process.env.PORT ?? 4000;
 
 // Create schema and apply constraint directives for validation
 
-const { rateLimitDirectiveTypeDefs, rateLimitDirectiveTransformer } = rateLimitDirective();
-
 // let schema = makeExecutableSchema({
 // 	typeDefs: [constraintDirectiveTypeDefs, rateLimitDirectiveTypeDefs, typeDefs],
 // 	resolvers,
@@ -51,8 +40,20 @@ const { rateLimitDirectiveTypeDefs, rateLimitDirectiveTransformer } = rateLimitD
 
 // const typeDefs = readFileSync('../schema.graphql', 'utf-8');
 
+const initializeDatabase = async () => {
+	try {
+		await AppDataSource.initialize();
+		console.log('Database initialized');
+	} catch (err) {
+		console.error('Error initializing database', err);
+		throw err;
+	}
+};
+
 const createSchema = async () => {
 	try {
+		const { rateLimitDirectiveTypeDefs, rateLimitDirectiveTransformer } = rateLimitDirective();
+
 		let schema = await buildSchema({
 			resolvers: [TrackResolver],
 			validate: false,
@@ -71,7 +72,7 @@ const createSchema = async () => {
 
 // Create Apollo Server instance
 
-const createServer = (schema: GraphQLSchema) => {
+const createApolloServer = (schema: GraphQLSchema) => {
 	const server = new ApolloServer<CustomContext>({
 		schema,
 		introspection: true,
@@ -81,58 +82,56 @@ const createServer = (schema: GraphQLSchema) => {
 	return server;
 };
 
-// Allow only specified origins to access the server
+const setupMiddleware = async (server: ApolloServer<CustomContext>) => {
+	const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || [];
+	await server.start();
 
-const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || [];
+	app.use(
+		'/graphql',
+		cors({
+			origin: allowedOrigins,
+			credentials: true,
+		}),
+		express.json(),
+		expressMiddleware(server, {
+			context: async ({ req, res }) => ({
+				dataSource: AppDataSource,
+				req,
+				res,
+			}),
+		})
+	);
+};
+
+// Allow only specified origins to access the server
 
 // Start Apollo Server, Apply middleware to express app, including CORS and JSON parsing,
 // allows server to use /graphql endpoint
 // Add access-control-allow-credentials header to allow cookies to be sent to the server
 
-const startApolloServer = async () => {
+const startServer = async () => {
 	try {
+		await initializeDatabase();
+
 		const schema = await createSchema();
+
 		if (!schema) {
 			throw new Error('Schema not created');
 		}
 
-		const server = createServer(schema);
+		const server = createApolloServer(schema);
 
 		if (!server) {
 			throw new Error('Server not created');
 		}
 
-		await server.start();
+		await setupMiddleware(server);
 
-		app.use(
-			'/graphql',
-			cors({ origin: allowedOrigins, credentials: true }),
-			express.json(),
-			expressMiddleware(server, {
-				context: async () => ({ dataSource: AppDataSource }),
-			})
-		);
-	} catch (err: any) {
-		console.error('Error starting server', err);
-	}
-};
-
-// Define how to start the http server on designated port
-
-const startHttpServer = async () => {
-	try {
 		await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
-		console.log(`🚀 Server ready at port: ${port}`);
 	} catch (err: any) {
 		console.error('Error starting server', err);
 	}
 };
 
 // Start the Apollo Server and the HTTP Server
-startApolloServer()
-	.then(() => {
-		startHttpServer();
-	})
-	.catch((err) => {
-		console.error('Error starting server', err);
-	});
+startServer();

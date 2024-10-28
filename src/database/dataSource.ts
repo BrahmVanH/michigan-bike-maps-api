@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import dotenv from 'dotenv';
 
-import TrackORM from '@/models/track';
+import TrackORM from '@models/Track';
 
 dotenv.config();
 
@@ -22,6 +22,9 @@ const AppDataSource = new DataSource({
 	entities: [TrackORM],
 	type: 'postgres',
 	synchronize: true,
+	extra: {
+		extensions: ['postgis'],
+	},
 });
 
 export default AppDataSource;

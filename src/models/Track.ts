@@ -1,7 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, Index, BaseEntity } from 'typeorm';
 import { Point, LineString } from 'geojson';
 import { ObjectType, Field, ID } from 'type-graphql';
-import { GraphQLJSONObject } from 'graphql-type-json';
 import GeoJSONLineStringType from './LineString';
 import GeoJSONPointType from './Point';
 
@@ -23,11 +22,11 @@ class TrackPropertiesType {
 	avgSpeed?: number;
 }
 
-@Entity({ name: 'tracks' })
+@Entity('tracks')
 @ObjectType()
 export default class TrackORM extends BaseEntity {
 	@Field(() => ID)
-	@PrimaryGeneratedColumn()
+	@PrimaryGeneratedColumn('uuid')
 	id: string;
 
 	@Field(() => String)

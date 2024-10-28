@@ -3,7 +3,7 @@ import { BaseContext } from '@apollo/server';
 import AppDataSource from 'database/dataSource.mts';
 
 export interface CustomContext extends BaseContext {
-	dataSource: typeof AppDataSource;
+	dataSource?: typeof AppDataSource;
 }
 
 export type S3Object = {

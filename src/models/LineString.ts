@@ -1,12 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, Index, BaseEntity } from 'typeorm';
-import { Point, LineString } from 'geojson';
-import { ObjectType, Field, ID } from 'type-graphql';
-import { GraphQLJSONObject } from 'graphql-type-json';
+import { ObjectType, Field } from 'type-graphql';
 
 @ObjectType('GeoJSONLineString')
 export default class GeoJSONLineStringType {
 	@Field()
-	type: string;
+	type: 'LineString';
 
 	@Field(() => [[Number]])
 	coordinates: number[][];
